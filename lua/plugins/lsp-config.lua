@@ -15,23 +15,27 @@ return {
 			local lspconfig = require("lspconfig")
 			local capabilities = require("cmp_nvim_lsp").default_capabilities()
 			local border = "rounded"
-
 			-- [CORREÇÃO] Ícones compactos para evitar erro E239
 			local signs = { Error = "✘", Warn = "▲", Hint = "  ", Info = "»" }
 			for type, icon in pairs(signs) do
 				local name = "DiagnosticSign" .. type
 				vim.fn.sign_define(name, { text = icon, texthl = name, numhl = "" })
 			end
-
 			-- Configurações de Bordas
-			vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = border })
-			vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = border })
+			vim.lsp.handlers["textDocument/hover"] = function(_, result, ctx, config)
+				config = config or {}
+				config.border = border
+				return vim.lsp.handlers.hover(_, result, ctx, config)
+			end
+			vim.lsp.handlers["textDocument/signatureHelp"] = function(_, result, ctx, config)
+				config = config or {}
+				config.border = border
+				return vim.lsp.handlers.signature_help(_, result, ctx, config)
+			end
 			require('lspconfig.ui.windows').default_options.border = border
 			vim.diagnostic.config({ float = { border = border } })
-
 			require("mason-lspconfig").setup({
 				ensure_installed = { "lua_ls", "ts_ls", "pyright", "clangd", "html", "cssls" },
-
 				handlers = {
 					-- Handler padrão (Configura automaticamente o que não for definido abaixo)
 					function(server_name)
@@ -39,7 +43,6 @@ return {
 							capabilities = capabilities,
 						})
 					end,
-
 					-- Configuração específica para LUA
 					["lua_ls"] = function()
 						lspconfig.lua_ls.setup({
@@ -52,7 +55,6 @@ return {
 							},
 						})
 					end,
-
 					-- Configuração específica para C/C++
 					["clangd"] = function()
 						lspconfig.clangd.setup({
@@ -60,7 +62,6 @@ return {
 							cmd = { "clangd", "--background-index", "--clang-tidy", "--header-insertion=never" },
 						})
 					end,
-
 					-- Configuração específica para HTML
 					["html"] = function()
 						lspconfig.html.setup({
@@ -74,7 +75,6 @@ return {
 					end,
 				},
 			})
-
 			-- Atalhos de teclado
 			vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "LSP Hover" })
 			vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "LSP Code Action" })
@@ -85,4 +85,3 @@ return {
 		end,
 	},
 }
-
