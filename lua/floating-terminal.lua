@@ -19,7 +19,7 @@ local function open_floating_terminal()
 	-- Garante que o buffer seja deletado ao fechar a janela
 	vim.bo[buf].bufhidden = "wipe"
 
-	vim.cmd('terminal powershell.exe')
+	vim.cmd('terminal')
 	vim.cmd('startinsert')
 end
 

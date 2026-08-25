@@ -7,7 +7,7 @@ vim.keymap.set('n','d]', vim.diagnostic.goto_next);
 
 
 -- Undotree diff command (Windows)
-vim.g.undotree_DiffCommand = "C:/Program Files/Git/usr/bin/diff.exe"
+vim.g.undotree_DiffCommand = "diff"
 
 -- Scroll
 vim.o.scrolloff = 8
@@ -58,4 +58,10 @@ vim.keymap.set("n", "<space>cs", function()
         print("Erro ao limpar Shada (verifique se há instâncias abertas).")
     end
 end, { desc = "Clear Shada (Histórico)" })
+
+vim.opt.clipboard = "unnamedplus"
+
+-- vim.api.nvim_create_autocmd("ColorScheme", {
+--   callback = set_subtle_cursorline,
+-- })
 

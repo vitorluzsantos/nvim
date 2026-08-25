@@ -15,6 +15,9 @@ return {
 				["P"] = { "toggle_preview", config = { use_float = true } }, -- Atalho para o preview
 			},
 		},
+		filesystem = {
+			hijack_netrw_behavior = "disabled", -- deixa o Oil.nvim ser o único responsável por abrir diretórios
+		},
 		popup_border_style = "rounded", -- Borda arredondada igual ao Telescope
 		default_component_configs = {
 			indent = {

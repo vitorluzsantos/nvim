@@ -4,8 +4,7 @@ return {
     "tpope/vim-dadbod",
     init = function()
       -- Conexão padrão global usando login-path
-      vim.g.db = "mysql:///?login-path=local"
-    end,
+			vim.g.db = "mariadb://vitor:senha123@localhost:3306"    end,
   },
 
   -- UI

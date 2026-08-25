@@ -5,7 +5,7 @@ return {
 		config = function()
 			require("oil").setup({
 				-- 1. COMPATIBILIDADE: Mantém a Neo-tree na lateral
-				default_file_explorer = false,
+				default_file_explorer = true,
 				delete_to_trash = true,
 				skip_confirm_for_simple_edits = false,
 
