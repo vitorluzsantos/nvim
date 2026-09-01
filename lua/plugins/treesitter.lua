@@ -10,10 +10,11 @@ return {
 			},
 			indent = {
 				enable = true,
-				disable = { "c", "cpp" }, -- usa o cindent nativo pra C/C++
+				disable = { "c", "cpp" },
 			},
 			matchup = {
-				enable = true, -- ativa o módulo de matching
+				enable = true,
+				disable = { "markdown" }, -- evita o crash do treesitter-matchup em md
 			},
 		}
 	end
