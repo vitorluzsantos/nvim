@@ -1,82 +1,110 @@
--- lua/plugins/lualine.lua
--- Lualine transparente, adaptado às cores do colorscheme ativo (modus-vivendi, carbonfox, etc)
-
 return {
   "nvim-lualine/lualine.nvim",
-  event = "VeryLazy",
   dependencies = { "nvim-tree/nvim-web-devicons" },
   config = function()
-    -- Pega as cores diretamente do colorscheme ativo, então funciona
-    -- tanto no modus-vivendi quanto se você voltar pro carbonfox/nightfox
-    local function get_hl(name, attr)
-      local hl = vim.api.nvim_get_hl(0, { name = name, link = false })
-      return hl[attr] and string.format("#%06x", hl[attr]) or nil
+    local cyberdream_colors = require("cyberdream.colors").default
+
+    local is_git = function()
+      local git_dir = vim.fn.finddir(".git", ".;")
+      return git_dir ~= nil and #git_dir > 0
     end
 
-    local colors = {
-      bg      = "NONE", -- transparente
-      fg      = get_hl("Normal", "fg") or "#ffffff",
-      accent  = get_hl("Function", "fg") or get_hl("Statement", "fg") or "#61afef",
-      red     = get_hl("DiagnosticError", "fg") or "#e06c75",
-      yellow  = get_hl("DiagnosticWarn", "fg") or "#e5c07b",
-      green   = get_hl("DiagnosticOk", "fg") or get_hl("String", "fg") or "#98c379",
-      blue    = get_hl("DiagnosticInfo", "fg") or "#61afef",
-      gray    = get_hl("Comment", "fg") or "#5c6370",
-      violet  = get_hl("Constant", "fg") or "#c678dd",
-    }
+    local is_not_git = function()
+      return not is_git()
+    end
 
-    local transparent_theme = {
+    local get_filename_with_icon = function()
+      local ok, devicons = pcall(require, "nvim-web-devicons")
+      local fname = vim.fn.expand("%:t")
+      if fname == "" then return "" end
+
+      if ok then
+        local ext = vim.fn.expand("%:e")
+        local icon = devicons.get_icon(fname, ext, { default = true })
+        return (icon or "󰈙") .. " " .. fname
+      end
+      return fname
+    end
+
+    local custom_cyberdream = {
       normal = {
-        a = { bg = colors.bg, fg = colors.accent, gui = "bold" },
-        b = { bg = colors.bg, fg = colors.fg },
-        c = { bg = colors.bg, fg = colors.gray },
+        a = { fg = cyberdream_colors.bg, bg = cyberdream_colors.blue, gui = "bold" },
+        b = { fg = cyberdream_colors.fg, bg = cyberdream_colors.bg_alt },
+        c = { fg = cyberdream_colors.fg, bg = "NONE" },
+        x = { fg = cyberdream_colors.fg, bg = "NONE" },
+        y = { fg = cyberdream_colors.fg, bg = cyberdream_colors.bg_alt },
+        z = { fg = cyberdream_colors.bg, bg = cyberdream_colors.green, gui = "bold" },
       },
-      insert   = { a = { bg = colors.bg, fg = colors.green, gui = "bold" } },
-      visual   = { a = { bg = colors.bg, fg = colors.violet, gui = "bold" } },
-      replace  = { a = { bg = colors.bg, fg = colors.red, gui = "bold" } },
-      command  = { a = { bg = colors.bg, fg = colors.yellow, gui = "bold" } },
+      insert = {
+        a = { fg = cyberdream_colors.bg, bg = cyberdream_colors.green, gui = "bold" },
+      },
+      visual = {
+        a = { fg = cyberdream_colors.bg, bg = cyberdream_colors.magenta, gui = "bold" },
+      },
+      replace = {
+        a = { fg = cyberdream_colors.bg, bg = cyberdream_colors.red, gui = "bold" },
+      },
+      command = {
+        a = { fg = cyberdream_colors.bg, bg = cyberdream_colors.orange, gui = "bold" },
+      },
       inactive = {
-        a = { bg = colors.bg, fg = colors.gray },
-        b = { bg = colors.bg, fg = colors.gray },
-        c = { bg = colors.bg, fg = colors.gray },
+        a = { fg = cyberdream_colors.grey, bg = cyberdream_colors.bg_alt },
+        c = { fg = cyberdream_colors.grey, bg = "NONE" },
       },
     }
 
     require("lualine").setup({
       options = {
-        theme = transparent_theme,
-        component_separators = { left = "|", right = "|" },
-        section_separators = { left = "", right = "" },
+        theme = custom_cyberdream,
+        component_separators = "",
+        section_separators = "",
         globalstatus = true,
-        icons_enabled = true,
-        disabled_filetypes = { statusline = { "dashboard", "alpha" } },
       },
       sections = {
-        lualine_a = { "mode" },
-        lualine_b = { "branch", "diff" },
-        lualine_c = {
-          { "filename", path = 1 },
-        },
-        lualine_x = {
+        lualine_a = {
           {
-            "diagnostics",
-            symbols = { error = " ", warn = " ", info = " ", hint = "󰌵 " },
+            function()
+              return ""
+            end,
+            separator = { left = "", right = "" },
           },
-          "filetype",
+          {
+            "mode",
+            separator = { left = "", right = "" },
+          },
         },
-        lualine_y = { "progress" },
-        lualine_z = { "location" },
+        lualine_b = {
+          {
+            get_filename_with_icon,
+            cond = is_git,
+            color = { fg = cyberdream_colors.fg, bg = cyberdream_colors.bg_alt },
+            separator = { left = "", right = "" },
+          },
+          {
+            get_filename_with_icon,
+            cond = is_not_git,
+            color = { fg = cyberdream_colors.fg, bg = "NONE" },
+            separator = { left = "", right = "" },
+          },
+          {
+            "branch",
+            icon = "",
+            cond = is_git,
+            color = { fg = cyberdream_colors.bg, bg = cyberdream_colors.magenta, gui = "bold" },
+            separator = { left = "", right = "" },
+          },
+        },
+        lualine_c = {},
+        lualine_x = {},
+        lualine_y = {},
+        lualine_z = {
+          {
+            "location",
+            icon = "",
+            separator = { left = "", right = "" },
+          },
+        },
       },
-      extensions = { "lazy", "fzf", "trouble" },
-    })
-
-    -- Recalcula as cores toda vez que o colorscheme mudar
-    vim.api.nvim_create_autocmd("ColorScheme", {
-      callback = function()
-        vim.schedule(function()
-          require("lualine").refresh()
-        end)
-      end,
     })
   end,
 }
